@@ -30,7 +30,7 @@ jobs:
       - name: Build Single File Executable
         run: |
           # Replace 'main.py' with your script name. '--onefile' creates a single binary.
-          pyinstaller --onefile main.py 
+          pyinstaller --onefile ping_scan.py 
 
       - name: Create GitHub Release and Upload Asset
         uses: softprops/action-gh-release@v2
