@@ -1,0 +1,40 @@
+name: Build and Release Executable
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers the workflow only when you push a version tag like v1.0.0
+
+permissions:
+  contents: write # Essential permission to create releases and upload assets
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest # Change to windows-latest if you need a Windows .exe
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11' # Specify your preferred Python version
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      - name: Build Single File Executable
+        run: |
+          # Replace 'main.py' with your script name. '--onefile' creates a single binary.
+          pyinstaller --onefile main.py 
+
+      - name: Create GitHub Release and Upload Asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/main  # For Windows runners, use: dist/main.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
