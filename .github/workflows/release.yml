@@ -1,40 +1,42 @@
-name: Build and Release Executable
+name: Build Windows EXE and Release
 
 on:
   push:
     tags:
       - 'v*' # Triggers the workflow only when you push a version tag like v1.0.0
 
-permissions:
-  contents: write # Essential permission to create releases and upload assets
-
 jobs:
-  build-and-release:
-    runs-on: ubuntu-latest # Change to windows-latest if you need a Windows .exe
-
+  build:
+    name: Build Windows EXE
+    runs-on: windows-latest
+    permissions:
+        contents: write
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.11' # Specify your preferred Python version
+          python-version: '3.11' # Change to match your project's Python version
+          cache: 'pip'
 
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # If your app requires external libraries, uncomment the line below:
+          # pip install -r requirements.txt
 
-      - name: Build Single File Executable
+      - name: Build Executable with Spec File Only
         run: |
-          # Replace 'main.py' with your script name. '--onefile' creates a single binary.
-          pyinstaller --onefile ping_scan.py 
+          pyinstaller --clean -F ping_scan.py
+        # NOTE: Replace "your_config.spec" with the actual name of your file. 
+        # Command line parameters like --onefile are ignored when using a spec file.
 
-      - name: Create GitHub Release and Upload Asset
-        uses: softprops/action-gh-release@v2
+      - name: Upload Binary to GitHub Release
+        uses: softprops/action-gh-release@v3
         with:
-          files: dist/main  # For Windows runners, use: dist/main.exe
+          files: dist/*.exe
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN }}
