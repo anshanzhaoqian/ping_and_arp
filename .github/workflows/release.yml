@@ -30,7 +30,7 @@ jobs:
 
       - name: Build Executable with Spec File Only
         run: |
-          pyinstaller -F ping_scan.py
+          pyinstaller --clean -F ping_scan.py
         # NOTE: Replace "your_config.spec" with the actual name of your file. 
         # Command line parameters like --onefile are ignored when using a spec file.
 
